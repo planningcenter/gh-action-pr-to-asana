@@ -18,7 +18,7 @@ jobs:
 
     steps:
       - name: Create Asana Task
-        uses: planningcenter/gh-action-pr-to-asasna@v1
+        uses: planningcenter/gh-action-pr-to-asana@v1
         with:
           asana_token: ${{ secrets.ASANA_PAT }}
           asana_project_id: ${{ secrets.ASANA_PROJECT_ID }}
