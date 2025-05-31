@@ -16,5 +16,5 @@ inputs:
     default: "dependabot"
 
 runs:
-  using: "node22"
+  using: "node20"
   main: "action.js"
