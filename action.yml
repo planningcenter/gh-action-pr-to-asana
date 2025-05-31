@@ -1,0 +1,20 @@
+name: "PR to Asana Action"
+description: "GitHub action that creates an Asana task from a PR"
+
+inputs:
+  asana_token:
+    description: "Asana Personal Access Token"
+    required: true
+  asana_project_id:
+    description: "Asana project ID for task creation"
+    required: true
+  asana_section_id:
+    description: "Asana section ID for task creation"
+    required: true
+  pr_authors:
+    description: "Comma-separated list of PR authors to create tasks for"
+    default: "dependabot"
+
+runs:
+  using: "node22"
+  main: "action.js"
