@@ -1,6 +1,6 @@
-import * as github from "@actions/github";
-import * as core from "@actions/core";
-import * as asana from "asana";
+const core = require('@actions/core');
+const github = require('@actions/github');
+const asana = require("asana");
 
 async function run() {
   // Check if PR author is someone we are making Asana tasks for
