@@ -2,7 +2,7 @@
   "name": "gh-action-pr-to-asana",
   "version": "0.0.1",
   "description": "GitHub action that creates an Asana task from a PR",
-  "main": "dist/action.js",
+  "main": "dist/index.js",
   "scripts": {
     "build": "ncc build src/action.js -o dist",
     "test": "echo \"Error: no test specified\" && exit 1"
