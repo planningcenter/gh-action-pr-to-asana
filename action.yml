@@ -14,9 +14,9 @@ inputs:
   asana_section_id:
     description: "Asana section ID for task creation"
     required: true
-  pr_authors:
+  asana_tasks_for_pr_authors:
     description: "Comma-separated list of PR authors to create tasks for"
-    default: "dependabot"
+    default: "dependabot[bot]"
 
 runs:
   using: "node20"
