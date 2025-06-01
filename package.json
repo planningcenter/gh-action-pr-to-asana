@@ -12,9 +12,12 @@
     "email": "wassim@metallaoui.com"
   },
   "license": "MIT",
-  "devDependencies": {
+  "dependencies": {
     "@actions/core": "^1.11.1",
     "@actions/github": "^6.0.1",
     "asana": "^3.0.16"
+  },
+  "devDependencies": {
+    "@vercel/ncc": "^0.38.3"
   }
 }

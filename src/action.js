@@ -1,5 +1,5 @@
-const core = require('@actions/core');
-const github = require('@actions/github');
+const core = require("@actions/core");
+const github = require("@actions/github");
 const asana = require("asana");
 
 async function run() {
@@ -18,7 +18,7 @@ async function run() {
     return;
   }
 
-  // Create an Asana task for the PR in project and section
+  // Create an Asana task for the PR for project and section
   const asanaAccessToken = core.getInput("asana_token");
   const asanaProjectId = core.getInput("asana_project_id");
   const asanaSectionId = core.getInput("asana_section_id");
