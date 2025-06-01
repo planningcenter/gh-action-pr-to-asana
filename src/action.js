@@ -15,7 +15,7 @@ async function run() {
     console.log(
       `Author ${prAuthor} is not in expected authors list: ${allowedPrAuthors.join(
         ", "
-      )}, skipping for now...`
+      )}, skipping...`
     )
     return
   }
