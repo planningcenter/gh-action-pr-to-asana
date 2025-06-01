@@ -26,5 +26,5 @@ jobs:
           asana_token: ${{ secrets.ASANA_PAT }}
           asana_project_id: ${{ secrets.ASANA_PROJECT_ID }}
           asana_section_id: ${{ secrets.ASANA_SECTION_ID }}
-          pr_authors: dependabot
+          pr_authors: dependabot[bot]
 ```
