@@ -16,7 +16,8 @@ permissions:
     pull-requests: write
 
 jobs:
-  create_task:
+  create-task:
+    name: Create
     runs-on: ubuntu-latest
     steps:
       - name: Create Asana Task
