@@ -1,6 +1,6 @@
-import * as core from "@actions/core";
 import * as github from "@actions/github";
-import Asana from "asana";
+import * as core from "@actions/core";
+import * as asana from "asana";
 
 async function run() {
   // Check if PR author is someone we are making Asana tasks for
@@ -32,10 +32,10 @@ async function run() {
   console.log("- PR Title:", prTitle);
 
   // Initialize Asana client
-  let client = Asana.ApiClient.instance;
-  let token = client.authentications["token"];
+  const client = asana.ApiClient.instance;
+  const token = client.authentications["token"];
   token.accessToken = asanaAccessToken;
-  const tasksApiInstance = new Asana.TasksApi();
+  const tasksApiInstance = new asana.TasksApi();
 
   // Format the task name from PR title
   const formattedPrTitle = prTitle.includes(":")
@@ -52,7 +52,7 @@ async function run() {
       },
     };
 
-    // Creat the Asana task
+    // Create the task in Asana
     const response = await tasksApiInstance.createTask(body);
     console.log(
       `Created Asana task for PR #${prNumber} - ${prTitle} by ${prAuthor}`
