@@ -52,11 +52,9 @@ async function run() {
     }
 
     // Create the task in Asana
-    const response = await tasksApiInstance.createTask(body)
+    const asanaTask = await tasksApiInstance.createTask(body)
     console.log(`Created Asana task for PR #${prNumber} - ${prTitle} by ${prAuthor}`)
-    console.log("Asana task created successfully:", response.data.gid)
-
-    const taskUrl = response.data.permalink_url
+    console.log("Asana task created successfully:", asanaTask.data.gid)
 
     // Update PR description with Asana link
     const octokit = github.getOctokit(githubToken)
@@ -70,9 +68,9 @@ async function run() {
     })
 
     // Add Asana link to PR description
-    const updatedBody = pullRequest.body
-      ? `${pullRequest.body}\n\n---\n[View the associated task in Asana](${taskUrl})`
-      : `[View the associated task in Asana](${taskUrl})`
+    // Matches the format of the Asana app for GitHub
+    const taskUrl = `https://app.asana.com/0/0/${asanaTask.data.gid}`
+    const updatedBody = `${pullRequest.body}\n\n---\n- To see the specific tasks where the Asana app for GitHub is being used, see below\n  - ${taskUrl}`
 
     // Update PR description
     await octokit.rest.pulls.update({
