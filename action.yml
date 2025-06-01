@@ -2,6 +2,9 @@ name: "PR to Asana Action"
 description: "GitHub action that creates an Asana task from a PR"
 
 inputs:
+  github_token:
+    description: "GITHUB_TOKEN secret set automatically for actions"
+    required: true
   asana_token:
     description: "Asana Personal Access Token"
     required: true
