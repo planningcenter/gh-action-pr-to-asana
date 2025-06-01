@@ -8,7 +8,7 @@ async function run() {
   //
   const prAuthor = github.context.payload.pull_request.user.login
   const allowedPrAuthors = core
-    .getInput("pr_authors")
+    .getInput("asana_tasks_for_pr_authors")
     .split(",")
     .map((author) => author.trim())
   if (!allowedPrAuthors.includes(prAuthor)) {
