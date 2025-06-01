@@ -3,7 +3,9 @@ const github = require("@actions/github")
 const asana = require("asana")
 
 async function run() {
-  // Check if PR author is someone we are making Asana tasks for
+  //
+  // Check if PR author is someone we should make Asana tasks for
+  //
   const prAuthor = github.context.payload.pull_request.user.login
   const allowedPrAuthors = core
     .getInput("pr_authors")
@@ -18,7 +20,9 @@ async function run() {
     return
   }
 
-  // Create an Asana task for the PR for the project and section
+  //
+  // Boiler
+  //
   const asanaAccessToken = core.getInput("asana_token")
   const asanaProjectId = core.getInput("asana_project_id")
   const asanaSectionId = core.getInput("asana_section_id")
@@ -27,19 +31,15 @@ async function run() {
   const prTitle = github.context.payload.pull_request.title
   const prUrl = github.context.payload.pull_request.html_url
 
-  console.log("Debug: Input variables:")
-  console.log("- PR Author:", prAuthor)
-  console.log("- Allowed PR Authors:", allowedPrAuthors)
-  console.log("- PR Number:", prNumber)
-  console.log("- PR Title:", prTitle)
-
   // Initialize Asana client
   const client = asana.ApiClient.instance
   const token = client.authentications["token"]
   token.accessToken = asanaAccessToken
-  const tasksApiInstance = new asana.TasksApi()
 
-  // Format the task name from PR title
+  //
+  // Create an Asana Task for the PR
+  //
+  const tasksApiInstance = new asana.TasksApi()
   const formattedPrTitle = prTitle.includes(":") ? prTitle.split(":")[1].trim() : prTitle.trim()
   const taskName = `${formattedPrTitle} #${prNumber}`
 
@@ -52,12 +52,13 @@ async function run() {
       },
     }
 
-    // Create the task in Asana
+    // Create the Asana task
     const asanaTask = await tasksApiInstance.createTask(taskBody)
-    console.log(`Created Asana task for PR #${prNumber} - ${prTitle} by ${prAuthor}`)
-    console.log("Asana task created successfully:", asanaTask.data.gid)
+    console.log(`Created Asana task ${asanaTask.data.gid}} for PR #${prNumber} by ${prAuthor}`)
 
-    // Update PR description with Asana link
+    //
+    // Add Asana link to PR description
+    //
     const octokit = github.getOctokit(githubToken)
     const { owner, repo } = github.context.repo
 
@@ -68,12 +69,11 @@ async function run() {
       pull_number: prNumber,
     })
 
-    // Add Asana link to PR description
-    // Matches the format of the Asana app for GitHub
     const taskUrl = `https://app.asana.com/0/0/${asanaTask.data.gid}`
-    const updatedBody = `${pullRequest.body || ""}\n\n---\n- To see the specific tasks where the Asana app for GitHub is being used, see below\n  - ${taskUrl}`
+    // Matches the format of the Asana app for GitHub
+    const updatedBody = `${pullRequest.body || ""}\n\n---\n- To see the specific tasks where the Asana app for GitHub is being used, see below:\n  - ${taskUrl}`
 
-    // Update PR description
+    // Update the PR description
     await octokit.rest.pulls.update({
       owner,
       repo,
@@ -83,8 +83,11 @@ async function run() {
 
     console.log(`Updated PR #${prNumber} with Asana task link`)
 
+    //
     // Add a comment to the PR with the Asana task link
-    // This simple comment is made because we can't use the
+    //
+
+    // This simple comment/story is made because we can't use the
     // Asana API to make a rich GitHub attachment links.
     // And this isn't an attachment because the Asana app for GitHub
     // will not work if the PR is already linked.
@@ -96,14 +99,9 @@ async function run() {
     }
     const taskGid = asanaTask.data.gid
 
-    try {
-      const result = await storiesApiInstance.createStoryForTask(storyBody, taskGid)
-      console.log("Added comment to Asana task successfully")
-      console.log("API called successfully. Returned data: " + JSON.stringify(result.data, null, 2))
-    } catch (error) {
-      console.error("Error adding comment to Asana task:", error.response?.body || error.message)
-      // Continue execution even if adding the comment fails
-    }
+    // Add the story/comment
+    await storiesApiInstance.createStoryForTask(storyBody, taskGid)
+    console.log("Added comment to Asana task successfully")
   } catch (error) {
     console.error("Error:", error)
     core.setFailed(error.message)
