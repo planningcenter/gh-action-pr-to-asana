@@ -58941,7 +58941,8 @@ async function run() {
 
     // Create the Asana task
     const asanaTask = await tasksApiInstance.createTask(taskBody)
-    console.log(`Created Asana task ${asanaTask.data.gid}} for PR #${prNumber} by ${prAuthor}`)
+    const taskGid = asanaTask.data.gid
+    console.log(`Created Asana task ${taskGid} for PR #${prNumber} by ${prAuthor}`)
 
     //
     // Add Asana link to PR description
@@ -58956,7 +58957,7 @@ async function run() {
       pull_number: prNumber,
     })
 
-    const taskUrl = `https://app.asana.com/0/0/${asanaTask.data.gid}`
+    const taskUrl = `https://app.asana.com/0/0/${taskGid}`
     // Matches the format of the Asana app for GitHub
     const updatedBody = `${pullRequest.body || ""}\n\n---\n- To see the specific tasks where the Asana app for GitHub is being used, see below:\n  - ${taskUrl}`
 
@@ -58984,11 +58985,22 @@ async function run() {
         text: `Associated GitHub PR: ${prUrl}`,
       },
     }
-    const taskGid = asanaTask.data.gid
 
     // Add the story/comment
     await storiesApiInstance.createStoryForTask(storyBody, taskGid)
-    console.log("Added comment to Asana task successfully")
+    console.log("Added story/comment to Asana task")
+
+    //
+    // Remove just added followers from the Asana task
+    //
+    const removeFollowersBody = {
+      data: {
+        followers: "me",
+      },
+    }
+    // Remove the current user (the one who created the task) as a follower
+    await tasksApiInstance.removeFollowerForTask(removeFollowersBody, taskGid)
+    console.log("Removed the integration user ('me') as a follower from the Asana task")
   } catch (error) {
     console.error("Error:", error)
     core.setFailed(error.message)
