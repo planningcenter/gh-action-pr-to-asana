@@ -12,6 +12,9 @@ on:
   pull_request:
     types: [opened]
 
+permissions:
+    pull-requests: write
+
 jobs:
   pr_opened:
     runs-on: ubuntu-latest
@@ -24,4 +27,6 @@ jobs:
           asana_project_id: ${{ secrets.ASANA_PROJECT_ID }}
           asana_section_id: ${{ secrets.ASANA_SECTION_ID }}
           pr_authors: dependabot
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
