@@ -1,4 +1,4 @@
-name: ncc
+name: Build Action
 on:
   push:
     # Can't push a build commit to a tag, so only run for branches
