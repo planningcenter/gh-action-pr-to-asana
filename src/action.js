@@ -40,7 +40,7 @@ async function run() {
   const tasksApiInstance = new asana.TasksApi()
 
   // Format the task name from PR title
-  const formattedPrTitle = prTitle.includes(":") ? prTitle.split(":")[1].trim() : prTitle
+  const formattedPrTitle = prTitle.includes(":") ? prTitle.split(":")[1].trim() : prTitle.trim()
   const taskName = `${formattedPrTitle} #${prNumber}`
 
   try {
@@ -70,8 +70,8 @@ async function run() {
 
     // Add Asana link to PR description
     // Matches the format of the Asana app for GitHub
-    const taskUrl = `https://app.asana.c om/0/0/${asanaTask.data.gid}`
-    const updatedBody = `${pullRequest.body}\n\n---\n- To see the specific tasks where the Asana app for GitHub is being used, see below\n  - ${taskUrl}`
+    const taskUrl = `https://app.asana.com/0/0/${asanaTask.data.gid}`
+    const updatedBody = `${pullRequest.body || ""}\n\n---\n- To see the specific tasks where the Asana app for GitHub is being used, see below\n  - ${taskUrl}`
 
     // Update PR description
     await octokit.rest.pulls.update({
@@ -94,17 +94,16 @@ async function run() {
         text: `Associated GitHub PR: ${prUrl}`,
       },
     }
-    let taskGid = asanaTask.data.gid
-    storiesApiInstance.createStoryForTask(storyBody, taskGid).then(
-      (result) => {
-        console.log(
-          "API called successfully. Returned data: " + JSON.stringify(result.data, null, 2)
-        )
-      },
-      (error) => {
-        console.error(error.response.body)
-      }
-    )
+    const taskGid = asanaTask.data.gid
+
+    try {
+      const result = await storiesApiInstance.createStoryForTask(storyBody, taskGid)
+      console.log("Added comment to Asana task successfully")
+      console.log("API called successfully. Returned data: " + JSON.stringify(result.data, null, 2))
+    } catch (error) {
+      console.error("Error adding comment to Asana task:", error.response?.body || error.message)
+      // Continue execution even if adding the comment fails
+    }
   } catch (error) {
     console.error("Error:", error)
     core.setFailed(error.message)
@@ -114,5 +113,5 @@ async function run() {
 try {
   run()
 } catch (error) {
-  core.setFailed(error.message)
+  core.setFailed(error.message || "An unexpected error occurred")
 }
