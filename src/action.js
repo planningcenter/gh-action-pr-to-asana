@@ -25,6 +25,7 @@ async function run() {
   const githubToken = core.getInput("github_token")
   const prNumber = github.context.payload.pull_request.number
   const prTitle = github.context.payload.pull_request.title
+  const prUrl = github.context.payload.pull_request.html_url
 
   console.log("Debug: Input variables:")
   console.log("- PR Author:", prAuthor)
@@ -43,7 +44,7 @@ async function run() {
   const taskName = `${formattedPrTitle} #${prNumber}`
 
   try {
-    const body = {
+    const taskBody = {
       data: {
         name: taskName,
         projects: [asanaProjectId],
@@ -52,7 +53,7 @@ async function run() {
     }
 
     // Create the task in Asana
-    const asanaTask = await tasksApiInstance.createTask(body)
+    const asanaTask = await tasksApiInstance.createTask(taskBody)
     console.log(`Created Asana task for PR #${prNumber} - ${prTitle} by ${prAuthor}`)
     console.log("Asana task created successfully:", asanaTask.data.gid)
 
@@ -69,7 +70,7 @@ async function run() {
 
     // Add Asana link to PR description
     // Matches the format of the Asana app for GitHub
-    const taskUrl = `https://app.asana.com/0/0/${asanaTask.data.gid}`
+    const taskUrl = `https://app.asana.c om/0/0/${asanaTask.data.gid}`
     const updatedBody = `${pullRequest.body}\n\n---\n- To see the specific tasks where the Asana app for GitHub is being used, see below\n  - ${taskUrl}`
 
     // Update PR description
@@ -81,6 +82,29 @@ async function run() {
     })
 
     console.log(`Updated PR #${prNumber} with Asana task link`)
+
+    // Add a comment to the PR with the Asana task link
+    // This simple comment is made because we can't use the
+    // Asana API to make a rich GitHub attachment links.
+    // And this isn't an attachment because the Asana app for GitHub
+    // will not work if the PR is already linked.
+    const storiesApiInstance = new asana.StoriesApi()
+    const storyBody = {
+      data: {
+        text: `Associated GitHub PR: ${prUrl}`,
+      },
+    }
+    let taskGid = asanaTask.data.gid
+    storiesApiInstance.createStoryForTask(storyBody, taskGid).then(
+      (result) => {
+        console.log(
+          "API called successfully. Returned data: " + JSON.stringify(result.data, null, 2)
+        )
+      },
+      (error) => {
+        console.error(error.response.body)
+      }
+    )
   } catch (error) {
     console.error("Error:", error)
     core.setFailed(error.message)
