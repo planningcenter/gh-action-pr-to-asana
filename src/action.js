@@ -18,7 +18,7 @@ async function run() {
     return;
   }
 
-  // Create an Asana task for the PR for project and section
+  // Create an Asana task for the PR for the project and section
   const asanaAccessToken = core.getInput("asana_token");
   const asanaProjectId = core.getInput("asana_project_id");
   const asanaSectionId = core.getInput("asana_section_id");
