@@ -22,6 +22,7 @@ async function run() {
   const asanaAccessToken = core.getInput("asana_token");
   const asanaProjectId = core.getInput("asana_project_id");
   const asanaSectionId = core.getInput("asana_section_id");
+  const githubToken = core.getInput('github_token');
   const prNumber = github.context.payload.pull_request.number;
   const prTitle = github.context.payload.pull_request.title;
 
@@ -62,7 +63,7 @@ async function run() {
     const taskUrl = response.data.permalink_url;
 
     // Update PR description with Asana link
-    const octokit = github.getOctokit();
+    const octokit = github.getOctokit(githubToken)
     const { owner, repo } = github.context.repo;
 
     // Get current PR description
