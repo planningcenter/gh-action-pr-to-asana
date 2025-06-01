@@ -1,6 +1,6 @@
-import * as core from '@actions/core';
-import * as github from '@actions/github';
-import asana from 'asana';
+import * as core from "@actions/core";
+import * as github from "@actions/github";
+import Asana from "asana";
 
 async function run() {
   // Check if PR author is someone we are making Asana tasks for
@@ -31,27 +31,37 @@ async function run() {
   console.log("- PR Number:", prNumber);
   console.log("- PR Title:", prTitle);
 
-  // Initialize Asana client using Client instead of ApiClient
-  const client = asana.Client.create().useAccessToken(asanaAccessToken);
+  // Initialize Asana client
+  let client = Asana.ApiClient.instance;
+  let token = client.authentications["token"];
+  token.accessToken = asanaAccessToken;
+  const tasksApiInstance = new Asana.TasksApi();
 
-  const formattedPrTitle = prTitle.includes(":") ? prTitle.split(":")[1].trim() : prTitle;
+  // Format the task name from PR title
+  const formattedPrTitle = prTitle.includes(":")
+    ? prTitle.split(":")[1].trim()
+    : prTitle;
   const taskName = `${formattedPrTitle} #${prNumber}`;
 
   try {
-    // Create task in Asana
-    const response = await client.tasks.createTask({
-      name: taskName,
-      projects: [asanaProjectId],
-      memberships: [{ project: asanaProjectId, section: asanaSectionId }],
-    });
+    const body = {
+      data: {
+        name: taskName,
+        projects: [asanaProjectId],
+        memberships: [{ project: asanaProjectId, section: asanaSectionId }],
+      },
+    };
 
-    console.log(`Created Asana task for PR #${prNumber} - ${prTitle} by ${prAuthor}`);
-    console.log("Asana task created successfully:", response.gid);
+    // Creat the Asana task
+    const response = await tasksApiInstance.createTask(body);
+    console.log(
+      `Created Asana task for PR #${prNumber} - ${prTitle} by ${prAuthor}`
+    );
+    console.log("Asana task created successfully:", response.data.gid);
 
-    // Get the task URL
-    const taskUrl = response.permalink_url
+    const taskUrl = response.data.permalink_url;
 
-    // Update PR description with Asana link if a GitHub token is provided
+    // Update PR description with Asana link
     const octokit = github.getOctokit();
     const { owner, repo } = github.context.repo;
 
@@ -59,20 +69,20 @@ async function run() {
     const { data: pullRequest } = await octokit.rest.pulls.get({
       owner,
       repo,
-      pull_number: prNumber
+      pull_number: prNumber,
     });
 
     // Add Asana link to PR description
-    const updatedBody = pullRequest.body ?
-      `${pullRequest.body}\n\n---\n[View the associated task in Asana](${taskUrl})` :
-      `[View the associated task in Asana](${taskUrl})`;
+    const updatedBody = pullRequest.body
+      ? `${pullRequest.body}\n\n---\n[View the associated task in Asana](${taskUrl})`
+      : `[View the associated task in Asana](${taskUrl})`;
 
     // Update PR description
     await octokit.rest.pulls.update({
       owner,
       repo,
       pull_number: prNumber,
-      body: updatedBody
+      body: updatedBody,
     });
 
     console.log(`Updated PR #${prNumber} with Asana task link`);
