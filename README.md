@@ -28,3 +28,13 @@ jobs:
           asana_section_id: ${{ secrets.ASANA_SECTION_ID }}
           asana_tasks_for_pr_authors: ${{ vars.ASANA_TASKS_FOR_PR_AUTHORS }}
 ```
+
+## Setup Tips
+
+If you plan to use this action beyond Dependabot workflows, you'll need to configure secrets in both locations:
+
+* Actions secrets: GitHub Repo → Settings → Secrets and variables → Actions
+* Dependabot secrets: GitHub Repo → Settings → Secrets and variables → Dependabot
+
+> [!NOTE]
+> The `asana_tasks_for_pr_authors` input should be configured as a variable, not a secret.
